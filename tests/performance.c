@@ -12,7 +12,7 @@
 
 #include "chewing.h"
 
-int main()
+int main(void)
 {
     ChewingContext *ctx;
     int ch;

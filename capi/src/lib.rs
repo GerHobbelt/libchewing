@@ -148,7 +148,7 @@ pub mod setup {
     ///     ...
     /// }
     ///
-    /// int main()
+    /// int main(void)
     /// {
     ///     ChewingContext *ctx;
     ///     FILE *fd;

@@ -114,7 +114,7 @@ void compare_per_run()
     printf("\n\n");
 }
 
-int main()
+int main(void)
 {
     if (!init_sim())
         return 1;

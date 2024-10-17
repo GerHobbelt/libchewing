@@ -43,7 +43,7 @@ void test_IntervalType()
         "sizeof(IntervalType) = %d shall be %d for ABI compatibility", actual, expect);
 }
 
-int main()
+int main(void)
 {
     test_ChewingConfigData();
     test_IntervalType();
