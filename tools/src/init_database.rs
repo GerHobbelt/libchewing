@@ -125,8 +125,7 @@ fn parse_line(
 ) -> Result<(Vec<Syllable>, &str, u32)> {
     let phrase = line
         .split(delimiter)
-        .filter(|s| !s.is_empty())
-        .next()
+        .find(|s| !s.is_empty())
         .ok_or(parse_error(line_num, line))?
         .trim_matches('"');
 
@@ -152,7 +151,6 @@ fn parse_line(
     // skip phrase and freq
     {
         let syllable_str = syllable_str.trim_matches('"');
-        println!("syllable {:?}", syllable_str);
         if syllable_str.is_empty() {
             continue;
         }
