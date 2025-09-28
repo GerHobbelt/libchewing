@@ -247,6 +247,9 @@ impl Editor {
     pub fn ack(&mut self) {
         self.shared.commit_buffer.clear();
     }
+    pub fn clear_composition_editor(&mut self) {
+        self.shared.com.clear();
+    }
     pub fn clear_syllable_editor(&mut self) {
         self.shared.syl.clear();
     }
@@ -396,7 +399,7 @@ impl Editor {
         &self.shared.commit_buffer
     }
     pub fn commit(&mut self) -> Result<(), EditorError> {
-        if !self.is_entering() || self.shared.com.is_empty() {
+        if self.shared.com.is_empty() {
             return Err(EditorError::InvalidState);
         }
         self.shared.commit();
@@ -581,14 +584,12 @@ impl SharedState {
             return Err(format!("已有：{phrase}"));
         }
         let result = self
-            .dict
-            .add_phrase(&syllables, (phrase.as_ref(), 100).into())
-            .map(|_| phrase)
+            .learn_phrase(&syllables, &phrase)
             .map_err(|_| "加詞失敗：字數不符或夾雜符號".to_owned());
         if result.is_ok() {
             self.dirty_level += 1;
         }
-        result
+        result.map(|_| phrase)
     }
     fn learn_phrase(
         &mut self,

@@ -1244,6 +1244,10 @@ pub unsafe extern "C" fn chewing_cand_list_prev(ctx: *mut ChewingContext) -> c_i
 pub unsafe extern "C" fn chewing_commit_preedit_buf(ctx: *mut ChewingContext) -> c_int {
     let ctx = as_mut_or_return!(ctx, ERROR);
 
+    if ctx.editor.is_selecting() {
+        return ERROR;
+    }
+
     match ctx.editor.commit() {
         Ok(_) => OK,
         Err(_) => ERROR,
@@ -1257,12 +1261,12 @@ pub unsafe extern "C" fn chewing_commit_preedit_buf(ctx: *mut ChewingContext) ->
 pub unsafe extern "C" fn chewing_clean_preedit_buf(ctx: *mut ChewingContext) -> c_int {
     let ctx = as_mut_or_return!(ctx, ERROR);
 
-    if !ctx.editor.is_entering() {
-        ERROR
-    } else {
-        ctx.editor.clear();
-        OK
+    if ctx.editor.is_selecting() {
+        return ERROR;
     }
+
+    ctx.editor.clear_composition_editor();
+    OK
 }
 
 /// # Safety
@@ -2062,6 +2066,9 @@ pub unsafe extern "C" fn chewing_keystroke_CheckAbsorb(ctx: *const ChewingContex
 
     match ctx.editor.last_key_behavior() {
         EditorKeyBehavior::Absorb => TRUE,
+        // Historically Absorb and Bell are returned as ABSORiB | BELL so here
+        // we should return true.
+        EditorKeyBehavior::Bell => TRUE,
         _ => FALSE,
     }
 }
