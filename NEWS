@@ -1,3 +1,27 @@
+What's New in libchewing 0.10.2 (August 14, 2025)
+---------------------------------------------------------
+
+* Bug Fixes
+  - Fix ㄈㄥ was incorrectly mapped to 風靡
+
+* Dictionary
+  - Added missing bopomofo for 風靡
+
+
+What's New in libchewing 0.10.1 (August 2, 2025)
+---------------------------------------------------------
+
+* Features
+  - cli: Ignore empty lines or lines starts with # when processing dictionary
+
+* Bug Fixes
+  - Add missing bopomofo mapping to the GinYieh layout
+  - Correct IBM layout mapping
+
+* Dictionary
+  - Import improvements from libchewing-data
+
+
 What's New in libchewing 0.10.0 (July 26, 2025)
 ---------------------------------------------------------
 
@@ -42,7 +66,7 @@ What's New in libchewing 0.10.0 (July 26, 2025)
   - Correctly allocate and free array returned to C FFI
   - Initialize learned user phrase freq with orig_freq
   - Ensure user phrase takes precedence
-  
+
 * Dictionary
   - Add alternative sound for 麼
   - Removed some inconsistent phrases (#709)
