@@ -543,7 +543,7 @@ impl SharedState {
         let result = self.learn_phrase_in_range_quiet(start, end);
         match &result {
             Ok(phrase) => {
-                self.notice_buffer = format!("加入：{}", phrase);
+                self.notice_buffer = format!("加入：{phrase}");
                 Ok(())
             }
             Err(msg) => {
@@ -764,6 +764,13 @@ impl BasicEditor for Editor {
                 self.state = to_state;
             }
             Transition::Spin(behavior) => self.shared.last_key_behavior = behavior,
+        }
+
+        if self.shared.options.conversion_engine == ConversionEngineKind::SimpleEngine
+            && self.is_entering()
+            && !self.shared.com.is_empty()
+        {
+            self.shared.commit();
         }
 
         if self.is_entering() && self.shared.last_key_behavior == EditorKeyBehavior::Absorb {
@@ -1038,25 +1045,16 @@ impl State for Entering {
                             }
                         }
                     }
-                    LanguageMode::Chinese if shared.options.easy_symbol_input => {
-                        // Priortize symbol input
-                        if let Some(expended) = shared.abbr.find_abbrev(ev.unicode) {
-                            expended
-                                .chars()
-                                .for_each(|ch| shared.com.insert(Symbol::from(ch)));
-                            return self.spin_absorb();
-                        }
-                        if let Some(symbol) = special_symbol_input(ev.unicode) {
-                            shared.com.insert(Symbol::from(symbol));
-                            return self.spin_absorb();
-                        }
-                        if ev.modifiers.is_none() && KeyBehavior::Absorb == shared.syl.key_press(ev)
-                        {
-                            return self.start_enter_syllable();
-                        }
-                        self.spin_bell()
-                    }
                     LanguageMode::Chinese => {
+                        if shared.options.easy_symbol_input && ev.modifiers.shift {
+                            // Priortize symbol input
+                            if let Some(expended) = shared.abbr.find_abbrev(ev.unicode) {
+                                expended
+                                    .chars()
+                                    .for_each(|ch| shared.com.insert(Symbol::from(ch)));
+                                return self.spin_absorb();
+                            }
+                        }
                         if ev.modifiers.is_none() && KeyBehavior::Absorb == shared.syl.key_press(ev)
                         {
                             return self.start_enter_syllable();
@@ -1471,6 +1469,9 @@ impl State for Selecting {
             Esc => {
                 shared.cancel_selecting();
                 shared.com.pop_cursor();
+                if shared.options.conversion_engine == ConversionEngineKind::SimpleEngine {
+                    shared.com.clear();
+                }
                 self.start_entering()
             }
             Del => {
